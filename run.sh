@@ -1,4 +1,4 @@
 #! /bin/bash
 
-./copy $@
-ssh pi -A "python3 main.py"
+./copy.sh $@
+ssh pi -A "cd project; python3 $@"
