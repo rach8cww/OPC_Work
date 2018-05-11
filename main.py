@@ -1,24 +1,39 @@
 from usbiss.spi import SPI
 import opc
 
-print('Trying to connect to instrument...')
 
-# Build the connector
-spi = SPI("/dev/ttyAMA0")
+def getInstrument(port):
+    print('Trying to connect to instrument', port, '...')
 
-print('Connected to instrument!')
+    # Build the connector
+    instrument = SPI("/dev/" + port)
 
-# Set the SPI mode and clock speed
-spi.mode = 1
-spi.max_speed_hz = 500000
+    print('Connected to instrument!', instrument)
 
-alpha = opc.OPCN2(spi)
+    return instrument
 
-# Turn on the device
-alpha.on()
 
-# Read the histogram
-alpha.histogram()
+def main():
+    spi = getInstrument('ttyACM0')
 
-# Turn the device off
-alpha.off()
+    # Set the SPI mode and clock speed
+    spi.mode = 1
+    spi.max_speed_hz = 500000
+
+    alpha = opc.OPCN2(spi)
+
+    # Turn on the device
+    alpha.on()
+
+    # Read the histogram
+    histogram = alpha.histogram()
+
+    # Turn the device off
+    alpha.off()
+
+    print(alpha)
+    print(histogram)
+    print('Finished processing data')
+
+if __name__  == '__main__':
+    main()
