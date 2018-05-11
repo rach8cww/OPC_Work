@@ -1,3 +1,3 @@
 #! /bin/bash
 
-scp -r . pi:~/project
+scp -r $@ pi:~/project
