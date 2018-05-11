@@ -1,12 +1,24 @@
 from usbiss.spi import SPI
+import opc
 
-spi = SPI('80')
+print('Trying to connect to instrument...')
 
+# Build the connector
+spi = SPI("/dev/ttyAMA0")
+
+print('Connected to instrument!')
+
+# Set the SPI mode and clock speed
 spi.mode = 1
 spi.max_speed_hz = 500000
 
-print(repr(spi._usbiss))
+alpha = opc.OPCN2(spi)
 
-# SPI transaction
+# Turn on the device
+alpha.on()
 
-response = spi.xfer([0x00, 0x00])
+# Read the histogram
+alpha.histogram()
+
+# Turn the device off
+alpha.off()
