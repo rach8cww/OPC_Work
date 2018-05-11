@@ -1,6 +1,6 @@
 from usbiss.spi import SPI
 
-spi = SPI(port)
+spi = SPI('INSTRUMENT_PORT')
 
 spi.mode = 1
 spi.max_speed_hz = 500000
