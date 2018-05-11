@@ -2,6 +2,12 @@ import opc
 import time
 from usbiss.spi import SPI
 
+def exit_error(e, message):
+    print('----------------------------------------------------------------------')
+    print('\t', message)
+    print(e)
+    print('----------------------------------------------------------------------')
+    exit(1)
 
 def get_instrument(port):
     print('Trying to connect to instrument', port, '...')
@@ -10,9 +16,7 @@ def get_instrument(port):
     try:
         instrument = SPI("/dev/" + port)
     except Exception as e:
-        print('Could not connect to /dev/' + port)
-        print(e)
-        exit(1)
+        exit_error('Could not connect to /dev/' + port)
 
     print('Connected to instrument!', instrument)
 
@@ -25,22 +29,47 @@ def get_alpha(spi):
     spi.max_speed_hz = 500000
 
     try:
-        alpha = opc.OPCN2(spi)
+        alpha = opc.OPCN2(spi, debug=True)
+
         if alpha is None:
             raise Exception('Could not connect!')
 
+        print('Connected to', alpha)
         return alpha
 
     except Exception as e:
-        print('Could not start alpha controller')
-        print(e)
-        exit(1)
+        exit_error(e, 'Could not start alpha controller')
 
 
-def results(alpha):
+def device_status(alpha):
+    print('Device status:')
+    print(alpha.read_pot_status())
+
+
+def perform(alpha):
+    # Turn on the device
+    alpha.on()
+    device_status(alpha)
+
+    alpha.toggle_fan(True)
+    alpha.toggle_laser(True)
+
+    power = 255
+    alpha.set_fan_power(power)
+    # alpha.set_laser_power(power)
+
+    device_status(alpha)
+
+    histogram = alpha.histogram()
+
+    if histogram is None:
+        raise Exception('Could not load histogram')
+
     # Read the histogram and print to console
-    for key, value in alpha.histogram().items():
+    for key, value in histogram.items():
         print("Key: {}\tValue: {}".format(key, value))
+
+    time.sleep(2)
 
     # Turn the device off
     alpha.off()
@@ -53,15 +82,12 @@ def main():
     alpha = get_alpha(spi)
 
     try:
-        # Turn on the device
-        alpha.on()
-        results(alpha)
+        perform(alpha)
 
     except Exception as e:
-        print('Failed while retreiving results')
-        print(e)
         alpha.off()
-        exit(1)
+        exit_error(e, 'Failed while retrieving results')
+
 
 if __name__ == '__main__':
     print('Welcome to Rachel\'s beautiful program')
