@@ -1,3 +1,2 @@
 py-opc
-# pyusbiss
 pyusbiss==0.2.0
