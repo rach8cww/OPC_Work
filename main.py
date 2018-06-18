@@ -1,9 +1,11 @@
 #!/usr/bin/python
 
+# Importing libraries
 import opc
 import time
 from usbiss.spi import SPI
 
+# Setting error message format for visibility
 def exit_error(e, message):
     print('----------------------------------------------------------------------')
     print('\t', message)
