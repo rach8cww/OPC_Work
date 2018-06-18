@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import opc
 import time
 from usbiss.spi import SPI
