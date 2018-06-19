@@ -3,6 +3,7 @@
 # Importing libraries
 import opc
 import time
+from time import sleep
 from usbiss.spi import SPI
 
 # Setting error message format for visibility
@@ -56,6 +57,8 @@ def perform(alpha):
     alpha.on()
     device_status(alpha)
 
+    sleep(2)
+
     alpha.toggle_fan(True)
     alpha.toggle_laser(True)
 
@@ -74,7 +77,7 @@ def perform(alpha):
     for key, value in histogram.items():
         print("Key: {}\tValue: {}".format(key, value))
 
-    time.sleep(2)
+    sleep(2)
 
     # Turn the device off
     alpha.off()
@@ -86,9 +89,11 @@ def perform(alpha):
 def main():
     spi = get_instrument('ttyACM0')
     alpha = get_alpha(spi)
-    print('Alphasense instrument processing request...')
+    print('Alphasense instrument processing request')
+    print('_______________________________________________________________________')
     graph = alpha.histogram()
     print(graph)
+    print('_______________________________________________________________________')
 
     try:
         perform(alpha)
@@ -96,6 +101,7 @@ def main():
     except Exception as e:
         alpha.off()
         exit_error(e, 'Failed while retrieving results, this is still not working...')
+
 
 """
 print('histogram_sum: ', opc.histogram_sum)
