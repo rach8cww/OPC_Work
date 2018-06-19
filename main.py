@@ -86,7 +86,9 @@ def perform(alpha):
 def main():
     spi = get_instrument('ttyACM0')
     alpha = get_alpha(spi)
-    print('Alphasense instrument processing request')
+    print('Alphasense instrument processing request...')
+    graph = alpha.histogram()
+    print(graph)
 
     try:
         perform(alpha)
