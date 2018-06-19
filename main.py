@@ -13,6 +13,7 @@ def exit_error(e, message):
     print('----------------------------------------------------------------------')
     exit(1)
 
+
 def get_instrument(port):
     print('Trying to connect to instrument', port, '...')
 
@@ -81,17 +82,23 @@ def perform(alpha):
     print(alpha)
     print('Finished processing data')
 
+
 def main():
     spi = get_instrument('ttyACM0')
     alpha = get_alpha(spi)
+    print('Alphasense instrument processing request')
 
     try:
         perform(alpha)
 
     except Exception as e:
         alpha.off()
-        exit_error(e, 'Failed while retrieving results')
+        exit_error(e, 'Failed while retrieving results, this is still not working...')
 
+"""
+print('histogram_sum: ', opc.histogram_sum)
+print('Checksum: ', opc.Checksum)
+"""
 
 if __name__ == '__main__':
     print('Welcome to Rachel\'s beautiful program')
