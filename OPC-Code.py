@@ -16,6 +16,7 @@ def exit_error(e, message):
     exit(1)
 
 
+# code to connect to the instrument
 def get_instrument(port):
     print('Trying to connect to instrument', port, '...')
 
@@ -30,6 +31,7 @@ def get_instrument(port):
     return instrument
 
 
+#
 def get_alpha(spi):
     # Set the SPI mode and clock speed
     spi.mode = 1
@@ -81,7 +83,16 @@ def perform(alpha):
 
     # Read the histogram and print to console
     for key, value in histogram.items():
+        if key=='Bin 1': print("Key: {}\tValue: {}".format(key, value))
+        else key=='Bin 2': print("Key: {}\tValue: {}".format(key, value))
+        else: print("Key: {}\tValue: {}".format(key, value))
+
+"""
+Originally this was ...
+    # Read the histogram and print to console
+    for key, value in histogram.items():
         print("Key: {}\tValue: {}".format(key, value))
+"""
 
 
 def shut_down(alpha):
