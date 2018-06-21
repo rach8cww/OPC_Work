@@ -95,12 +95,18 @@ def main():
     print(graph)
     print('_______________________________________________________________________')
 
-    try:
-        perform(alpha)
+    cc = 0
 
-    except Exception as e:
-        alpha.off()
-        exit_error(e, 'Failed while retrieving results, this is still not working...')
+    for cc in range(0,100):
+        sleep(5)
+        cc = cc + 1
+        try:
+            perform(alpha)
+
+
+        except Exception as e:
+           alpha.off()
+           exit_error(e, 'Failed while retrieving results, this is still not working...')
 
 
 """
