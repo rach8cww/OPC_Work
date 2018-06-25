@@ -6,6 +6,11 @@ import time
 import datetime
 from time import sleep
 from usbiss.spi import SPI
+import glob
+#import pandas as pd
+#import openpyxl
+import csv
+import os
 
 # Setting error message format for visibility
 def exit_error(e, message):
@@ -107,6 +112,31 @@ def shut_down(alpha):
     print(alpha, '- Instrument finished getting data')
 
 
+def write_file(alpha):
+    file = open('trial_1.csv', 'w')
+    histogram = alpha.histogram()
+    file.write(histogram.keys())
+    file.write(histogram.values())
+
+"""
+def write_file(alpha):
+    with open('C:\\Users\\Rachel Whitty\\Desktop\\WORK\\raspberryOPC\\Data\\trial_1.csv', 'w') as out:
+        histogram = alpha.histogram()
+        w = csv.DictWriter(out, histogram)
+        w.writeheader()
+        w.writerow(histogram)
+"""
+"""
+def write_file(alpha):
+    with open('TestOutput.csv', 'w') as csvfile:
+        #fieldnames = ['Bin 00', 'Bin 01', 'Bin 02', 'Bin 03', 'Bin 04', 'Bin 05', 'Bin 06' /
+                     # 'Bin 07', 'Bin 08', 'Bin 09', 'Bin 10', 'Bin 11', 'Bin 12', 'Bin 13' /
+                     # 'Bin 14', 'Bin 15', 'Bin1 MToF', 'Bin3 MToF', 'Bin4 MToF', 'Bin7 MToF' /
+                     # 'Checksum', 'PM1', 'PM10', 'PM2.5', 'Pressure', 'SFR', 'Sampling Period' /
+                     # 'Temperature']
+        writer = csv.writer(csvfile)
+"""
+
 def main():
     spi = get_instrument('ttyACM0')
     alpha = get_alpha(spi)
@@ -122,6 +152,7 @@ def main():
         cc = cc + 1
         try:
             perform(alpha)
+            write_file(alpha) # added here instead ... 
 
         except Exception as e:
            alpha.off()
@@ -129,6 +160,13 @@ def main():
 
     shut_down(alpha)
 
+    """
+    try:
+        write_file(alpha)
+
+    except Exception as e:
+        exit_error(e, 'The csv file did not write')
+    """
 
 if __name__ == '__main__':
     print('Welcome to the OPC-N2 interfacing programme')
