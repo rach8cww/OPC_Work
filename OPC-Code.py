@@ -81,18 +81,19 @@ def perform(alpha):
     if histogram is None:
         raise Exception('Could not load histogram')
 
-    # Read the histogram and print to console
-    for key, value in histogram.items():
-        if key=='Bin 1': print("Key: {}\tValue: {}".format(key, value))
-        else key=='Bin 2': print("Key: {}\tValue: {}".format(key, value))
-        else: print("Key: {}\tValue: {}".format(key, value))
+    histogram['Bin 00'] = histogram.pop('Bin 0')
+    histogram['Bin 01'] = histogram.pop('Bin 1')
+    histogram['Bin 02'] = histogram.pop('Bin 2')
+    histogram['Bin 03'] = histogram.pop('Bin 3')
+    histogram['Bin 04'] = histogram.pop('Bin 4')
+    histogram['Bin 05'] = histogram.pop('Bin 5')
+    histogram['Bin 06'] = histogram.pop('Bin 6')
+    histogram['Bin 07'] = histogram.pop('Bin 7')
+    histogram['Bin 08'] = histogram.pop('Bin 8')
+    histogram['Bin 09'] = histogram.pop('Bin 9')
 
-"""
-Originally this was ...
-    # Read the histogram and print to console
-    for key, value in histogram.items():
-        print("Key: {}\tValue: {}".format(key, value))
-"""
+    for key in sorted(histogram):
+        print("%s: %s" % (key, histogram[key]))
 
 
 def shut_down(alpha):
@@ -116,7 +117,7 @@ def main():
 
     cc = 0
 
-    for cc in range(0,10):
+    for cc in range(0,1): # change to (0,1) for 10 iterations
         sleep(2)
         cc = cc + 1
         try:
