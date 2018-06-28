@@ -106,6 +106,7 @@ def perform(alpha):
     for key in sorted(histogram):
         print("%s: %s" % (key, histogram[key]))
 
+
     """   
     #'C:\\Users\\Rachel Whitty\\Desktop\\WORK\\raspberryOPC\\Data\\Trial.csv'
     with open('Trial.csv', 'w') as out:
@@ -170,18 +171,18 @@ def main():
         cc = cc + 1
         try:
             perform(alpha)
-            with open('C:\\Users\\Cecilia\\Desktop\\Trial.csv', 'w', newline='') as out:
-                print('Initiating the print to file protocol')
-                fieldnames = ['Bin_1', 'Bin_2']
-                write = csv.DictWriter(out, fieldnames=fieldnames)
-
-                write.writeheader()
-                write.writerow({'Bin_1': 'Lots of Aerosols', 'Bin_2': 'Not so many aerosols'})
 
         except Exception as e:
             alpha.off()
             exit_error(e, 'Failed while retrieving results, this is still not working...')
 
+        histogram = alpha.histogram()
+        try:
+            df = pd.DataFrame.from_dict(histogram, orient='index')
+            df.to_csv('data.csv')
+        except Exception as e:
+            alpha.off()
+            exit_error(e, 'Failed to save to csv')
 
 
     shut_down(alpha)
@@ -191,3 +192,14 @@ def main():
 if __name__ == '__main__':
     print('Welcome to the OPC-N2 interfacing programme')
     main()
+
+
+"""
+with open('C:\\Users\\Cecilia\\Desktop\\Trial.csv', 'w', newline='') as out:
+print('Initiating the print to file protocol')
+fieldnames = ['Bin_1', 'Bin_2']
+write = csv.DictWriter(out, fieldnames=fieldnames)
+
+write.writeheader()
+write.writerow({'Bin_1': 'Lots of Aerosols', 'Bin_2': 'Not so many aerosols'})
+"""
