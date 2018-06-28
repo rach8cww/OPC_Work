@@ -465,16 +465,16 @@ class OPCN2(_OPC):
             resp.append(r)
 
         # convert to real things and store in dictionary!
-        data['Bin 0']           = self._16bit_unsigned(resp[0], resp[1])
-        data['Bin 1']           = self._16bit_unsigned(resp[2], resp[3])
-        data['Bin 2']           = self._16bit_unsigned(resp[4], resp[5])
-        data['Bin 3']           = self._16bit_unsigned(resp[6], resp[7])
-        data['Bin 4']           = self._16bit_unsigned(resp[8], resp[9])
-        data['Bin 5']           = self._16bit_unsigned(resp[10], resp[11])
-        data['Bin 6']           = self._16bit_unsigned(resp[12], resp[13])
-        data['Bin 7']           = self._16bit_unsigned(resp[14], resp[15])
-        data['Bin 8']           = self._16bit_unsigned(resp[16], resp[17])
-        data['Bin 9']           = self._16bit_unsigned(resp[18], resp[19])
+        data['Bin 00']           = self._16bit_unsigned(resp[0], resp[1])
+        data['Bin 01']           = self._16bit_unsigned(resp[2], resp[3])
+        data['Bin 02']           = self._16bit_unsigned(resp[4], resp[5])
+        data['Bin 03']           = self._16bit_unsigned(resp[6], resp[7])
+        data['Bin 04']           = self._16bit_unsigned(resp[8], resp[9])
+        data['Bin 05']           = self._16bit_unsigned(resp[10], resp[11])
+        data['Bin 06']           = self._16bit_unsigned(resp[12], resp[13])
+        data['Bin 07']           = self._16bit_unsigned(resp[14], resp[15])
+        data['Bin 08']           = self._16bit_unsigned(resp[16], resp[17])
+        data['Bin 09']           = self._16bit_unsigned(resp[18], resp[19])
         data['Bin 10']          = self._16bit_unsigned(resp[20], resp[21])
         data['Bin 11']          = self._16bit_unsigned(resp[22], resp[23])
         data['Bin 12']          = self._16bit_unsigned(resp[24], resp[25])
@@ -520,9 +520,9 @@ class OPCN2(_OPC):
             data['PM10']            = self._calculate_float(resp[58:])
 
         # Calculate the sum of the histogram bins
-        histogram_sum = data['Bin 0'] + data['Bin 1'] + data['Bin 2']   + \
-                data['Bin 3'] + data['Bin 4'] + data['Bin 5'] + data['Bin 6']   + \
-                data['Bin 7'] + data['Bin 8'] + data['Bin 9'] + data['Bin 10']  + \
+        histogram_sum = data['Bin 00'] + data['Bin 01'] + data['Bin 02']   + \
+                data['Bin 03'] + data['Bin 04'] + data['Bin 05'] + data['Bin 06']   + \
+                data['Bin 07'] + data['Bin 08'] + data['Bin 09'] + data['Bin 10']  + \
                 data['Bin 11'] + data['Bin 12'] + data['Bin 13'] + data['Bin 14'] + \
                 data['Bin 15']
 
@@ -537,16 +537,16 @@ class OPCN2(_OPC):
         if number_concentration is True:
             _conv_ = data['SFR'] * data['Sampling Period'] # Divider in units of ml (cc)
 
-            data['Bin 0']   = data['Bin 0'] / _conv_
-            data['Bin 1']   = data['Bin 1'] / _conv_
-            data['Bin 2']   = data['Bin 2'] / _conv_
-            data['Bin 3']   = data['Bin 3'] / _conv_
-            data['Bin 4']   = data['Bin 4'] / _conv_
-            data['Bin 5']   = data['Bin 5'] / _conv_
-            data['Bin 6']   = data['Bin 6'] / _conv_
-            data['Bin 7']   = data['Bin 7'] / _conv_
-            data['Bin 8']   = data['Bin 8'] / _conv_
-            data['Bin 9']   = data['Bin 9'] / _conv_
+            data['Bin 00']   = data['Bin 00'] / _conv_
+            data['Bin 01']   = data['Bin 01'] / _conv_
+            data['Bin 02']   = data['Bin 02'] / _conv_
+            data['Bin 03']   = data['Bin 03'] / _conv_
+            data['Bin 04']   = data['Bin 04'] / _conv_
+            data['Bin 05']   = data['Bin 05'] / _conv_
+            data['Bin 06']   = data['Bin 06'] / _conv_
+            data['Bin 07']   = data['Bin 07'] / _conv_
+            data['Bin 08']   = data['Bin 08'] / _conv_
+            data['Bin 09']   = data['Bin 09'] / _conv_
             data['Bin 10']  = data['Bin 10'] / _conv_
             data['Bin 11']  = data['Bin 11'] / _conv_
             data['Bin 12']  = data['Bin 12'] / _conv_
@@ -994,16 +994,16 @@ class OPCN1(_OPC):
             resp.append(r)
 
         # convert to real things and store in dictionary!
-        data['Bin 0']           = self._16bit_unsigned(resp[0], resp[1])
-        data['Bin 1']           = self._16bit_unsigned(resp[2], resp[3])
-        data['Bin 2']           = self._16bit_unsigned(resp[4], resp[5])
-        data['Bin 3']           = self._16bit_unsigned(resp[6], resp[7])
-        data['Bin 4']           = self._16bit_unsigned(resp[8], resp[9])
-        data['Bin 5']           = self._16bit_unsigned(resp[10], resp[11])
-        data['Bin 6']           = self._16bit_unsigned(resp[12], resp[13])
-        data['Bin 7']           = self._16bit_unsigned(resp[14], resp[15])
-        data['Bin 8']           = self._16bit_unsigned(resp[16], resp[17])
-        data['Bin 9']           = self._16bit_unsigned(resp[18], resp[19])
+        data['Bin 00']           = self._16bit_unsigned(resp[0], resp[1])
+        data['Bin 01']           = self._16bit_unsigned(resp[2], resp[3])
+        data['Bin 02']           = self._16bit_unsigned(resp[4], resp[5])
+        data['Bin 03']           = self._16bit_unsigned(resp[6], resp[7])
+        data['Bin 04']           = self._16bit_unsigned(resp[8], resp[9])
+        data['Bin 05']           = self._16bit_unsigned(resp[10], resp[11])
+        data['Bin 06']           = self._16bit_unsigned(resp[12], resp[13])
+        data['Bin 07']           = self._16bit_unsigned(resp[14], resp[15])
+        data['Bin 08']           = self._16bit_unsigned(resp[16], resp[17])
+        data['Bin 09']           = self._16bit_unsigned(resp[18], resp[19])
         data['Bin 10']          = self._16bit_unsigned(resp[20], resp[21])
         data['Bin 11']          = self._16bit_unsigned(resp[22], resp[23])
         data['Bin 12']          = self._16bit_unsigned(resp[24], resp[25])
@@ -1023,9 +1023,9 @@ class OPCN1(_OPC):
         data['PM10']            = self._calculate_float(resp[58:])
 
         # Calculate the sum of the histogram bins
-        histogram_sum = data['Bin 0'] + data['Bin 1'] + data['Bin 2']   + \
-                data['Bin 3'] + data['Bin 4'] + data['Bin 5'] + data['Bin 6']   + \
-                data['Bin 7'] + data['Bin 8'] + data['Bin 9'] + data['Bin 10']  + \
+        histogram_sum = data['Bin 00'] + data['Bin 01'] + data['Bin 02']   + \
+                data['Bin 03'] + data['Bin 04'] + data['Bin 05'] + data['Bin 06']   + \
+                data['Bin 07'] + data['Bin 08'] + data['Bin 09'] + data['Bin 10']  + \
                 data['Bin 11'] + data['Bin 12'] + data['Bin 13'] + data['Bin 14'] + \
                 data['Bin 15']
 
