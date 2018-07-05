@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 # Importing libraries
+import json
 import time
 import rethinkdb as r
 from time import sleep
@@ -9,10 +10,14 @@ from time import sleep
 import opc
 from usbiss.spi import SPI
 
+config = False
+with open('database-config.json', 'r') as fin:
+    config = json.loads(fin.read())
+
 connection = r.connect(
-    user='admin',
-    host='18.218.150.250',
-    password='0mu_ptElrvCf7ykSMyID_fuMricNSHA&&t^wKlXf1OeJUh4!'
+    user=config["user"],
+    host=config["host"],
+    password=config["password"]
 )
 
 # Setting error message format for visibility

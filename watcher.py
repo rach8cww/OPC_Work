@@ -1,18 +1,22 @@
+import json
 import rethinkdb as r
 
+config = False
+with open('database-config.json', 'r') as fin:
+    config = json.loads(fin.read())
 
 connection = r.connect(
-    user='admin',
-    host='18.218.150.250',
-    password='0mu_ptElrvCf7ykSMyID_fuMricNSHA&&t^wKlXf1OeJUh4!'
+    user=config["user"],
+    host=config["host"],
+    password=config["password"]
 )
 
 def changes(change):
     print(change)
 
 cursor = r\
-    .db('data')\
-    .table('drone_test_1')\
+    .db('telemetry')\
+    .table('config')\
     .changes()
 
 for change in cursor.run(connection):
