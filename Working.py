@@ -5,8 +5,10 @@ import json
 import time
 import rethinkdb as r
 from time import sleep
+import threading
 
 from Watcher import WatchTable
+from RethinkDB import RethinkDBConnection
 
 # Importing libraries
 import opc
@@ -16,11 +18,6 @@ config = False
 with open('database-config.json', 'r') as fin:
     config = json.loads(fin.read())
 
-connection = r.connect(
-    user=config["user"],
-    host=config["host"],
-    password=config["password"]
-)
 
 # Setting error message format for visibility
 def exit_error(e, message):
@@ -38,12 +35,12 @@ def get_instrument(port):
     # Build the connector
     try:
         instrument = SPI("/dev/" + port)
+
+        print('Connected to instrument!', instrument)
+
+        return instrument
     except Exception as e:
         exit_error('Could not connect to /dev/' + port)
-
-    print('Connected to instrument!', instrument)
-
-    return instrument
 
 
 def get_alpha(spi):
@@ -69,23 +66,6 @@ def device_status(alpha):
     print(alpha.read_pot_status())
 
 
-def initiate(alpha):
-    # Turn on the device
-    alpha.on()
-    device_status(alpha)
-
-    sleep(2)
-
-    alpha.toggle_fan(True)
-    alpha.toggle_laser(True)
-
-    power = 255
-    alpha.set_fan_power(power)
-    # alpha.set_laser_power(power)
-
-    device_status(alpha)
-
-
 def get_bin_name(bin_name):
     bin_name = bin_name.lower()
 
@@ -96,6 +76,8 @@ def get_bin_name(bin_name):
 
 
 def get_type(bin_name):
+    """"Sometimes the bin_name has capital letters or spaces
+    Here we'll remove those spaces, and normalize the names"""
     bin_name = get_bin_name(bin_name)
 
     if "bin_" in bin_name:
@@ -107,74 +89,97 @@ def get_type(bin_name):
     return bin_name
 
 
-def perform(alpha):
+class WorkOPC(RethinkDBConnection):
 
-    print('----------------------------------------------------------------------')
-    ts = time.gmtime()
-    print(time.strftime("%Y-%m-%d %H:%M:%S", ts))
-    histogram = alpha.histogram()
+    def __init__(self, **kwargs):
+        super(WorkOPC, self).__init__(**kwargs)
 
-    if histogram is None:
-        raise Exception('Could not load histogram')
+        self.port = kwargs.get("port", "ttyACM0")
 
-    for key in histogram:
-        r.db('data').table('telemetry').insert({
-            "name": key,
-            "type": get_type(key),
-            "time": time.time(),
-            "value": histogram[key]
-        }).run(connection)
+        self.configWatcher = WatchTable(
+            "config",
+            self.callback,
+            config="database-config.json"
+        )
 
+    def runOPC(self):
+        self.main()
 
-def shut_down(alpha):
-    sleep(2)
-    print('----------------------------------------------------------------------')
-    ts = time.gmtime()
-    print(time.strftime("%Y-%m-%d %H:%M:%S", ts))
-    # Turn the device off
-    alpha.off()
+    def initiate(self):
+        # Turn on the device
+        self.alpha.on()
+        device_status(self.alpha)
 
-    print(alpha, '- Instrument finished getting data')
+        sleep(2)
 
-running = True
+        self.alpha.toggle_fan(True)
+        self.alpha.toggle_laser(True)
 
-def main():
-    spi = get_instrument('ttyACM0')
-    alpha = get_alpha(spi)
-    print('Alphasense instrument processing request')
-    print('-----------------------------------------------------------------------')
+        power = 255
+        self.alpha.set_fan_power(power)
+        # alpha.set_laser_power(power)
 
-    initiate(alpha)
+        device_status(self.alpha)
 
-    while True:
-        if running is not True:
-            break
-        try:
-            sleep(2)
-            perform(alpha)
+    def perform(self):
 
-        except KeyboardInterrupt as e:
-            print('Goodbye...')
-            break
+        print('----------------------------------------------------------------------')
+        ts = time.gmtime()
+        print(time.strftime("%Y-%m-%d %H:%M:%S", ts))
+        histogram = self.alpha.histogram()
 
-        except Exception as e:
-            shut_down(alpha)
-            exit_error(e, 'Failed while retrieving results, this is still not working...')
+        if histogram is None:
+            raise Exception('Could not load histogram')
 
-    shut_down(alpha)
+        for key in histogram:
+            self.runQuery(
+                r.db('telemetry').table('data').insert({
+                    "name": key,
+                    "type": get_type(key),
+                    "time": time.time(),
+                    "value": histogram[key]
+                })
+            )
 
 
-def callback(change):
-    print("OMG in my callback", change)
+    def shut_down(self):
+        sleep(2)
+        print('----------------------------------------------------------------------')
+        ts = time.gmtime()
+        print(time.strftime("%Y-%m-%d %H:%M:%S", ts))
+        # Turn the device off
+        self.alpha.off()
+
+        print(self.alpha, '- Instrument finished getting data')
+
+    def main(self):
+        spi = get_instrument(self.port)
+        self.alpha = get_alpha(spi)
+        print('Alphasense instrument processing request')
+        print('-----------------------------------------------------------------------')
+
+        self.initiate()
+
+        while True:
+            try:
+                sleep(2)
+                self.perform()
+
+            except KeyboardInterrupt as e:
+                print('Goodbye...')
+                break
+
+            except Exception as e:
+                self.shut_down()
+                exit_error(e, 'Failed while retrieving results, this is still not working...')
+
+        self.shut_down(self.alpha)
+
+
+    def callback(self, change):
+        print("OMG in my callback", change)
 
 if __name__ == '__main__':
     print('Welcome to the OPC-N2 interfacing programme')
-    # main()
 
-    myWatcher = WatchTable("config", callback)
-
-    while True:
-        time.sleep(1)
-        print("In my main thread")
-
-# opcDriver = myOpcDriver('ttyACM0', max_speed_hertz=500000).run()
+    opcDriver = WorkOPC(config="database-config.json").runOPC()

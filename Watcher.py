@@ -2,27 +2,16 @@ import json
 import threading
 import rethinkdb as r
 
-config = False
-with open('database-config.json', 'r') as fin:
-    config = json.loads(fin.read())
+from RethinkDB import RethinkDBConnection
 
+class WatchTable(RethinkDBConnection):
 
-class WatchTable:
-
-    def __init__(self, tablename, callback):
-        self.create_connection_to_database()
-        self.setup(tablename, callback)
+    def __init__(self, tablename, callback, **kwargs):
+        super(WatchTable, self).__init__(**kwargs)
+        self.setupCursor(tablename, callback)
         self.thread = self.create_thread()
 
-    def create_connection_to_database(self):
-        self.__connection = r.connect(
-            user=config["user"],
-            host=config["host"],
-            password=config["password"]
-        )
-        print("Connected to database")
-
-    def setup(self, tablename, callback):
+    def setupCursor(self, tablename, callback):
         self.tablename = tablename
         self.callback = callback
         self.cursor = r \
@@ -36,7 +25,7 @@ class WatchTable:
         return myThread
 
     def changes_thread(self):
-        for change in self.cursor.run(self.__connection):
+        for change in self.runQuery(self.cursor):
             self.callback(change)
             self.changes(change)
 
