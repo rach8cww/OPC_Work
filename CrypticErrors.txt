@@ -1,0 +1,27 @@
+pi@raspberrypi:~/project $ python3 Working.py
+Welcome to the OPC-N2 interfacing programme
+Traceback (most recent call last):
+  File "Working.py", line 185, in <module>
+    opcDriver = WorkOPC(config="database-config.json").runOPC()
+  File "Working.py", line 95, in __init__
+    super.__init__(**kwargs)
+TypeError: descriptor '__init__' of 'super' object needs an argument
+
+
+## Means that you forgot to pass `self` to super.__init__()
+## I was wrong, it means you should call it like this super().__init__()
+## I was wrong again, it's super(WatchTable, self).__init__(**kwargs)
+
+Welcome to the OPC-N2 interfacing programme
+{'config': 'database-config.json'}
+Traceback (most recent call last):
+  File "Working.py", line 185, in <module>
+    opcDriver = WorkOPC(config="database-config.json").runOPC()
+  File "Working.py", line 95, in __init__
+    super(WorkOPC, self).__init__(**kwargs)
+  File "/home/pi/project/RethinkDB.py", line 17, in __init__
+    self.setup(kwargs)
+TypeError: setup() takes 1 positional argument but 2 were given
+
+## This was caused because I overrode the parent classes `run` function with my own
+## I fixed this by renaming my function
