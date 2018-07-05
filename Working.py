@@ -6,6 +6,8 @@ import time
 import rethinkdb as r
 from time import sleep
 
+from Watcher import WatchTable
+
 # Importing libraries
 import opc
 from usbiss.spi import SPI
@@ -116,7 +118,7 @@ def perform(alpha):
         raise Exception('Could not load histogram')
 
     for key in histogram:
-        r.db('data').table('drone_test_1').insert({
+        r.db('data').table('telemetry').insert({
             "name": key,
             "type": get_type(key),
             "time": time.time(),
@@ -134,6 +136,7 @@ def shut_down(alpha):
 
     print(alpha, '- Instrument finished getting data')
 
+running = True
 
 def main():
     spi = get_instrument('ttyACM0')
@@ -144,6 +147,8 @@ def main():
     initiate(alpha)
 
     while True:
+        if running is not True:
+            break
         try:
             sleep(2)
             perform(alpha)
@@ -159,6 +164,17 @@ def main():
     shut_down(alpha)
 
 
+def callback(change):
+    print("OMG in my callback", change)
+
 if __name__ == '__main__':
     print('Welcome to the OPC-N2 interfacing programme')
-    main()
+    # main()
+
+    myWatcher = WatchTable("config", callback)
+
+    while True:
+        time.sleep(1)
+        print("In my main thread")
+
+# opcDriver = myOpcDriver('ttyACM0', max_speed_hertz=500000).run()
