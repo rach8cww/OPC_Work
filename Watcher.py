@@ -17,7 +17,7 @@ class WatchTable(RethinkDBConnection):
         self.cursor = r \
             .db('telemetry') \
             .table(tablename) \
-            .changes()
+            .changes(include_initial=True)
 
     def create_thread(self):
         myThread = threading.Thread(None, self.changes_thread)

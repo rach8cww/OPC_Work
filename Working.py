@@ -14,11 +14,6 @@ from RethinkDB import RethinkDBConnection
 import opc
 from usbiss.spi import SPI
 
-config = False
-with open('database-config.json', 'r') as fin:
-    config = json.loads(fin.read())
-
-
 # Setting error message format for visibility
 def exit_error(e, message):
     print('----------------------------------------------------------------------')
@@ -94,6 +89,7 @@ class WorkOPC(RethinkDBConnection):
     def __init__(self, **kwargs):
         super(WorkOPC, self).__init__(**kwargs)
 
+        self.config = kwargs.get("instrumentConfig", None)
         self.port = kwargs.get("port", "ttyACM0")
 
         self.configWatcher = WatchTable(
@@ -102,7 +98,16 @@ class WorkOPC(RethinkDBConnection):
             config="database-config.json"
         )
 
+    def wait_for_config_from_remote(self):
+        """We should load the current configuration from the server"""
+        while True:
+            if self.config:
+                break
+
+            sleep(0.5)
+
     def runOPC(self):
+        self.wait_for_config_from_remote()
         self.main()
 
     def initiate(self):
@@ -132,15 +137,48 @@ class WorkOPC(RethinkDBConnection):
             raise Exception('Could not load histogram')
 
         for key in histogram:
+            self.save_data(key, histogram[key])
+
+    def send_error_to_remote(self, error):
+        try:
+            self.runQuery(
+                r.db('telemetry').table('errors').insert({
+                    "error": error,
+                    "shouldAlert": True
+                })
+            )
+        except Exception as e:
+            print("Error while sending error to remote:", e)
+
+    def save_to_remote(self, key, data):
+        """Save data to remote host"""
+        try:
+            currentSample = self.config["config"]["sampleName"]["value"]
+
             self.runQuery(
                 r.db('telemetry').table('data').insert({
                     "name": key,
+                    "sampleName": currentSample,
                     "type": get_type(key),
                     "time": time.time(),
-                    "value": histogram[key]
+                    "value": data
                 })
             )
+        except Exception as e:
+            print("Error while saving to remote:", e)
 
+    def open_local_file(self, file_name):
+        self.file = open(file_name, "a")
+
+    def save_to_local(self, key, data):
+        """Save data to local sim card in case of connection loss"""
+        # https://stackoverflow.com/questions/4706499/how-do-you-append-to-a-file
+        # self.file.write (because we don't want to open the file each time, it's slow)
+        pass
+
+    def save_data(self, key, data):
+        self.save_to_local(key, data)
+        self.save_to_remote(key, data)
 
     def shut_down(self):
         sleep(2)
@@ -173,11 +211,10 @@ class WorkOPC(RethinkDBConnection):
                 self.shut_down()
                 exit_error(e, 'Failed while retrieving results, this is still not working...')
 
-        self.shut_down(self.alpha)
-
+        self.shut_down()
 
     def callback(self, change):
-        print("OMG in my callback", change)
+        self.config = change["new_val"]
 
 if __name__ == '__main__':
     print('Welcome to the OPC-N2 interfacing programme')
