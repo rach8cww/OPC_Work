@@ -170,26 +170,22 @@ class WorkOPC(RethinkDBConnection):
     def open_local_file(self, file_name):
         self.file = open(file_name, "a")
 
-    """def save_to_local(self, key, data):
-        # save data to local sim card in case of connection loss
+    def save_to_local(self, key, data):
+        """save data to local sim card in case of connection loss"""
         # https://stackoverflow.com/questions/4706499/how-do-you-append-to-a-file
         # self.file.write (because we don't want to open the file each time, it's slow)
+        ts = time.gmtime()
+        print(time.strftime("%Y-%m-%d %H:%M:%S", ts))
+        histogram = self.alpha.histogram()
         try:
-            currentSample = self.config["config"]["sampleName"]["value"]
 
-            self.file.write(
-                "name": key,
-                "sampleName": currentSample,
-                "type": get_type(key),
-                "time": time.time(),
-                "value": data
-            )
+            self.file.write(ts, key, histogram[key])
+
         except Exception as e:
             print("Error while saving to local:", e)
-    """
 
     def save_data(self, key, data):
-        #self.save_to_local(key, data)
+        self.save_to_local(key, data)
         self.save_to_remote(key, data)
 
     def shut_down(self):
