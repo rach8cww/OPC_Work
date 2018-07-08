@@ -98,6 +98,14 @@ class WorkOPC(RethinkDBConnection):
             config="database-config.json"
         )
 
+    def check_collect_data_switch(self):
+        """Check to see if the Collect Data button is on, in which case run main script"""
+        while True:
+            if self.config("active") == "true":
+                break
+
+            sleep(0.5)
+
     def wait_for_config_from_remote(self):
         """We should load the current configuration from the server"""
         while True:
@@ -108,6 +116,7 @@ class WorkOPC(RethinkDBConnection):
 
     def runOPC(self):
         self.wait_for_config_from_remote()
+        self.check_collect_data_switch()
         self.main()
 
     def initiate(self):
@@ -167,8 +176,8 @@ class WorkOPC(RethinkDBConnection):
         except Exception as e:
             print("Error while saving to remote:", e)
 
-    def open_local_file(self, file_name):
-        self.file = open(file_name, "a")
+    def open_local_file(self, file):
+        self.file = open("testData_1.csv", "a")
 
     def save_to_local(self, key, data):
         """save data to local sim card in case of connection loss"""
@@ -177,8 +186,8 @@ class WorkOPC(RethinkDBConnection):
         ts = time.gmtime()
         print(time.strftime("%Y-%m-%d %H:%M:%S", ts))
         histogram = self.alpha.histogram()
-        try:
 
+        try:
             self.file.write(ts, key, histogram[key])
 
         except Exception as e:
